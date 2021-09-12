@@ -6,8 +6,8 @@ mp_pose = mp.solutions.pose
 
 cap = cv2.VideoCapture(0)
 with mp_pose.Pose(
-        min_detection_confidence=0.5,
-        min_tracking_confidence=0.5) as pose:
+        min_detection_confidence=0.8,
+        min_tracking_confidence=0.8) as pose:
     while cap.isOpened(): 
         success, image = cap.read()
         if not success:
@@ -25,6 +25,10 @@ with mp_pose.Pose(
                 results.pose_landmarks,
                 mp_pose.POSE_CONNECTIONS,
                 landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+        if results.pose_landmarks:
+            print('person')
+        else:
+            print('none')
         cv2.imshow("", image)
         if cv2.waitKey(1) & 0xFF == 27:
             break
