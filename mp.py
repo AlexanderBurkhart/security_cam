@@ -4,39 +4,7 @@ mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles=  mp.solutions.drawing_styles
 mp_pose = mp.solutions.pose
 
-IMAGE_FILES = []
-BG_COLOR = (192, 192, 192)
-with mp_pose.Pose(
-        static_image_mode=True,
-        model_complexity=2,
-        enable_segmentation=True,
-        min_detection_confidence=0.5) as pose:
-    for idx, file in enumerate(IMAGE_FILES):
-        image = cv2.imread(file)
-        image_height, image_width, _ = image.shape
-        results = pose.process(cv2.cvtColor(image, cv2.cv2.COLOR_BGR2RGB))
-
-        if not results.pose_landmarks:
-            continue
-
-        annotated_image = image.copy()
-
-        condition = np.stack((results.segmentation_mask,) * 3, axis=-1)>0.1
-        bg_image = np.zeroes(image.shape, dtype=np.uint8)
-        bg_image[:] = BG_COLOR
-        annotated_image = np.where(condition, annotated_image, bg_image)
-
-        mp_drawing.draw_landmarks(
-                annotated_image,
-                results.pose_landmarks,
-                mp_pose.POSE_CONNECTIONS,
-                landmark_drawing_spec = mp.drawing_styles.get_default_pose_landmarks_style())
-        cv2.imwrite('/tmp/annotated_image' + str(idx) + '.png', annotated_image)
-
-        mp_drawing.plot_landmarks(
-                results.pose_world_landmarks, mp_pose.POSE_CONNECTIONS)
-
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 with mp_pose.Pose(
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as pose:
@@ -51,12 +19,12 @@ with mp_pose.Pose(
         results = pose.process(image)
         
         image.flags.writeable = True
-        image.cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         mp_drawing.draw_landmarks(
                 image,
                 results.pose_landmarks,
                 mp_pose.POSE_CONNECTIONS,
-                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_styles())
+                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
         cv2.imshow("", image)
         if cv2.waitKey(1) & 0xFF == 27:
             break
